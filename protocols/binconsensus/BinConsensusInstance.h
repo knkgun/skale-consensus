@@ -115,7 +115,7 @@ class BinConsensusInstance : public ProtocolInstance{
     void processNetworkMessageImpl(const ptr<NetworkMessageEnvelope>& _me);
 
 
-    void networkBroadcastValueIfThird(const ptr<BVBroadcastMessage>&  _m);
+    void bvbBroadcastValueIfThird(const ptr<BVBroadcastMessage>&  _m);
 
     void networkBroadcastValue(const ptr<BVBroadcastMessage>& _m);
 
@@ -124,11 +124,11 @@ class BinConsensusInstance : public ProtocolInstance{
 
     void insertValue(bin_consensus_round _r, bin_consensus_value _v);
 
-    void commitValueIfTwoThirds(const ptr<BVBroadcastMessage>& _m);
+    void auxBroadcastAndCommitValueIfTwoThirds(const ptr<BVBroadcastMessage>& _m);
 
-    void bvbVote(const ptr<MessageEnvelope>& _me);
+    bool bvbVote(const ptr<MessageEnvelope>& _me);
 
-    void auxVote(const ptr<MessageEnvelope>& _me);
+    bool auxVote(const ptr<MessageEnvelope>& _me);
 
 
     node_count getBVBVoteCount(bin_consensus_value _v, bin_consensus_round _round);
@@ -218,6 +218,7 @@ public:
 
     static void logGlobalStats();
 
+    uint64_t calculateRandomForThisRoundAndSaveItToDb(bin_consensus_round &_r);
 };
 
 

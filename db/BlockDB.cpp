@@ -164,10 +164,17 @@ bool BlockDB::unfinishedBlockExists( block_id  _blockID) {
     auto key = createBlockStartKey(_blockID);
     auto str = readString(key);
 
+    bool result;
+
     if (str != "") {
-        return !this->keyExists(createKey(_blockID));
+        result = !this->keyExists(createKey(_blockID));
+    } else {
+        result =  false;
     }
-    return false;
+
+    LOG(info, "Unfinished block exists in consensus database");
+
+    return result;
 }
 
 
