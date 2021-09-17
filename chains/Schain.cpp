@@ -816,11 +816,13 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
 void Schain::rebroadcastAllMessagesForCurrentBlock() const {
     auto proposalVector = getNode()->getProposalVectorDB()->getVector( lastCommittedBlockID + 1 );
     if ( proposalVector ) {
-        LOG( info, "Rebroadcasting messages for the current block" );
         auto messages = getNode()->getOutgoingMsgDB()->getMessages( lastCommittedBlockID + 1 );
+        LOG( info, "Rebroadcasting " + to_string(messages->size()) + " messages for the current block" );
         for ( auto&& m : *messages ) {
             getNode()->getNetwork()->rebroadcastMessage( m );
         }
+
+        LOG( info, "Rebroadcast messages for the current block" );
     }
 }
 

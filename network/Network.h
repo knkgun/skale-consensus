@@ -48,7 +48,7 @@ protected:
 
     uint32_t packetLoss = 0;
 
-    uint64_t   catchupBlocks = 0;
+    uint64_t   catchupBlocksTest = 0;
 
     ptr<thread> networkReadThread;
 

@@ -132,7 +132,7 @@ void Network::broadcastMessageImpl( const ptr< NetworkMessage >& _msg, bool _isF
     CHECK_ARGUMENT( _msg );
 
     // used for testing
-    if ( _msg->getBlockID() <= this->catchupBlocks ) {
+    if ( _msg->getBlockID() <= this->catchupBlocksTest ) {
         return;
     }
 
@@ -202,7 +202,7 @@ void Network::networkReadLoop() {
                 auto msg = dynamic_pointer_cast< NetworkMessage >( m->getMessage() );
 
 
-                if ( msg->getBlockID() <= catchupBlocks ) {
+                if (msg->getBlockID() <= catchupBlocksTest ) {
                     continue;
                 }
 
@@ -424,7 +424,7 @@ void Network::setPacketLoss( uint32_t _packetLoss ) {
 }
 
 void Network::setCatchupBlocks( uint64_t _catchupBlocks ) {
-    Network::catchupBlocks = _catchupBlocks;
+    Network::catchupBlocksTest = _catchupBlocks;
 }
 
 uint64_t Network::computeTotalDelayedSends() {
