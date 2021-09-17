@@ -56,10 +56,10 @@ BlockSigShareDB::checkAndSaveShareInMemory(const ptr<ThresholdSigShare>& _sigSha
         auto sigShareString = _sigShare->toString();
         CHECK_STATE(!sigShareString.empty())
 
-        LOCK(sigShareMutex)
+        LOCK2(sigShareMutex)
 
-        auto enoughSet = writeStringToSetInMemory(sigShareString, _sigShare->getBlockId(),
-                                          _sigShare->getSignerIndex());
+        auto enoughSet = writeStringToSetInMemoryUnsafe(sigShareString, _sigShare->getBlockId(),
+                                                        _sigShare->getSignerIndex());
         if (enoughSet == nullptr)
             return nullptr;
 
@@ -88,60 +88,22 @@ BlockSigShareDB::checkAndSaveShareInMemory(const ptr<ThresholdSigShare>& _sigSha
 }
 
 
-ptr<ThresholdSignature>
-BlockSigShareDB::checkAndSaveShare1(const ptr<ThresholdSigShare>& _sigShare, const ptr<CryptoManager>& _cryptoManager) {
-    try {
-        CHECK_ARGUMENT(_sigShare)
-        CHECK_ARGUMENT(_cryptoManager)
-
-        auto sigShareString = _sigShare->toString();
-        CHECK_STATE(!sigShareString.empty())
-
-        LOCK(sigShareMutex)
-
-        auto enoughSet = writeStringToSet(sigShareString, _sigShare->getBlockId(),
-                                          _sigShare->getSignerIndex());
-        if (enoughSet == nullptr)
-            return nullptr;
-
-        auto _sigShareSet = _cryptoManager->createSigShareSet(_sigShare->getBlockId());
-        CHECK_STATE(_sigShareSet)
-
-        for (auto &&item : *enoughSet) {
-
-            auto nodeInfo = sChain->getNode()->getNodeInfoByIndex(item.first);
-            CHECK_STATE(nodeInfo)
-            CHECK_STATE(!item.second.empty())
-            auto sigShare = _cryptoManager->createSigShare(item.second, sChain->getSchainID(),
-                                                           _sigShare->getBlockId(), item.first, false);
-            CHECK_STATE(sigShare)
-            _sigShareSet->addSigShare(sigShare);
-        }
-
-        CHECK_STATE(_sigShareSet->isEnough())
-        auto signature = _sigShareSet->mergeSignature();
-        CHECK_STATE(signature)
-        return signature;
-    } catch (ExitRequestedException &) { throw; } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
-}
 
 
 ptr<map<schain_index, string>>
-BlockSigShareDB::writeStringToSetInMemory(const string &_value, block_id _blockId, schain_index _index) {
+BlockSigShareDB::writeStringToSetInMemoryUnsafe(const string &_value, block_id _blockId, schain_index _index) {
 
 
     CHECK_ARGUMENT(_index > 0 && _index <= totalSigners);
 
-    LOCK(sigShareMutex);
 
     auto entryKey = createKey(_blockId, _index);
     CHECK_STATE(entryKey != "");
 
     if (sigShares.exists(entryKey)) {
-        if (!isDuplicateAddOK)
-            LOG(trace, "Double db entry " + this->prefix + "\n" + to_string(_blockId) + ":" + to_string(_index));
+        // same message received twixe
+        LOG(trace, "Duplicate block sig  share " + this->prefix + "\n" +
+                         to_string(_blockId) + ":" + to_string(_index));
         return nullptr;
     }
 

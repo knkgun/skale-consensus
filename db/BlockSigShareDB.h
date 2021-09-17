@@ -26,39 +26,38 @@
 #define SKALED_BLOCK_SIG_SHARES_DB
 
 class CommittedBlock;
+
 class ThresholdSignature;
 
 #include "thirdparty/lrucache.hpp"
 #include "CacheLevelDB.h"
 
 class CryptoManager;
+
 class ThresholdSigShare;
 
 class BlockSigShareDB : public CacheLevelDB {
 
-    cache::lru_cache<string,string> sigShares;
+    cache::lru_cache<string, string> sigShares;
 
-    recursive_mutex sigShareMutex;
+    mutex sigShareMutex;
 
-    const string& getFormatVersion() override;
+    const string &getFormatVersion() override;
 
+    ptr<map<schain_index, string> > writeStringToSetInMemoryUnsafe(
+            const string &_value, block_id _blockId, schain_index _index);
 
 
 public:
     BlockSigShareDB(
-        Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize );
+            Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
 
-    ptr< ThresholdSignature > checkAndSaveShare1(
-        const ptr< ThresholdSigShare >& _sigShare, const ptr< CryptoManager >& _cryptoManager );
-
-    ptr< ThresholdSignature > checkAndSaveShareInMemory(
-        const ptr< ThresholdSigShare >& _sigShare, const ptr< CryptoManager >& _cryptoManager );
-
-    ptr< map< schain_index, string > > writeStringToSetInMemory(
-        const string& _value, block_id _blockId, schain_index _index );
+    ptr<ThresholdSignature> checkAndSaveShareInMemory(
+            const ptr<ThresholdSigShare> &_sigShare, const ptr<CryptoManager> &_cryptoManager);
 
 
-    };
+
+};
 
 
 #endif  // SKALED_BLOCK_SIG_SHARES_DB
