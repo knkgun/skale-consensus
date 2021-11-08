@@ -664,13 +664,13 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
 
 
 void CryptoManager::verifyThresholdSig(
-    ptr< ThresholdSignature > _signature, BLAKE3Hash& _hash, bool _forceMockup ) {
+        ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash, bool _forceMockup) {
 
     CHECK_STATE(_signature);
 
-    MONITOR( __CLASS_NAME__, __FUNCTION__ )
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    if ( getSchain()->getNode()->isSgxEnabled() && !_forceMockup ) {
+    if (getSchain()->getNode()->isSgxEnabled() && !_forceMockup) {
 
         auto blsSig = dynamic_pointer_cast<ConsensusBLSSignature>(_signature);
 
@@ -682,8 +682,7 @@ void CryptoManager::verifyThresholdSig(
 
         CHECK_STATE(blsKey->VerifySig(
             make_shared<array<uint8_t, HASH_LEN>>(_hash.getHash()),
-            libBlsSig, blsKey->getRequiredSigners(),
-            blsKey->getTotalSigners()));
+            libBlsSig ));
 
     } else {
         // mockups sigs are not verified

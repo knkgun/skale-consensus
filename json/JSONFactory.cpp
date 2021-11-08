@@ -24,7 +24,6 @@
 #include "thirdparty/catch.hpp"
 
 #undef CHECK
-#include "bls/BLSutils.h"
 #include "BLSPublicKey.h"
 
 
@@ -490,7 +489,7 @@ JSONFactory::parseTestKeyNamesFromJson(const string& _sgxServerURL, const fs_pat
     auto sharedHash = make_shared<array<uint8_t, HASH_LEN>>(hash.getHash());
 
     CHECK_STATE( blsPublicKey->VerifySigWithHelper(
-            sharedHash, commonSig, _requiredNodes, _totalNodes ) );
+            sharedHash, commonSig ) );
 
     LOG(info, "Verified a sample sig");
 
